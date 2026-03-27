@@ -1,0 +1,6 @@
+Branch dataseet
+	https://universe.roboflow.com/corn-apple-leaf-branch-dataset/branch-dataset/dataset/1
+Line-based deep learning method for tree branch detection from digital images
+	https://www.sciencedirect.com/science/article/pii/S030324342200085X#section-cited-by
+
+
