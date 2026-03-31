@@ -1,9 +1,10 @@
 import torch
 import wandb
+import time
 from ultralytics import YOLO
 
 
-data_yaml = "Branch Dataset.v1i.yolo26/data.yaml"
+data_yaml = "/home/baraa/Desktop/Diplomski/Diplomski_rad/model_training/Branch Dataset.v1i.yolo26/data.yaml"
 
 def main():
 
@@ -22,7 +23,8 @@ def main():
         'weight_decay': 0.0005,
     }
 
-    with wandb.init(project="yolo26_branch", name="branch") as run:
+    start_time_cropped = time.time()
+    with wandb.init(project="yolo26_branch", name="branch_detection") as run:
 
             # Initialize YOLO Model
             model = YOLO('yolo26n.pt')
@@ -30,12 +32,16 @@ def main():
             # Train/fine-tune your model
             results = model.train(
                 data=str(data_yaml),
-                name='branch',
+                name='branch_detection',
                 **train_params,
-                mosaic=0.0,
+                mosaic=0.7,
                 mixup=0.0,
             )
+            time_cropped = time.time() - start_time_cropped
+            wandb.log({"train_results": results, "train_time": time_cropped})
     wandb.finish()
+
+    
 
 
 if __name__ == "__main__":
