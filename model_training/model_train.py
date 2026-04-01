@@ -4,7 +4,7 @@ import time
 from ultralytics import YOLO
 
 
-data_yaml = "/home/baraa/Desktop/Diplomski/Diplomski_rad/model_training/Branch Dataset.v1i.yolo26/data.yaml"
+data_yaml = "/home/baraa/Desktop/Diplomski/Diplomski_rad/model_training/Branch_SAM_Segmentation/data.yaml"
 
 def main():
 
@@ -24,15 +24,15 @@ def main():
     }
 
     start_time_cropped = time.time()
-    with wandb.init(project="yolo26_branch", name="branch_detection") as run:
+    with wandb.init(project="yolo26_branch", name="branch_segmentation") as run:
 
             # Initialize YOLO Model
-            model = YOLO('yolo26n.pt')
+            model = YOLO('yolo26n-seg.pt')
 
             # Train/fine-tune your model
             results = model.train(
                 data=str(data_yaml),
-                name='branch_detection',
+                name='branch_segmentation',
                 **train_params,
                 mosaic=0.7,
                 mixup=0.0,
