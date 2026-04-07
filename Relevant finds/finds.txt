@@ -6,4 +6,7 @@ Line-based deep learning method for tree branch detection from digital images
 SAM3
 	https://github.com/facebookresearch/sam3
 
+CVAT
+	https://app.cvat.ai/tasks/2140650?filter=%7B%22and%22%3A%5B%7B%22%21%22%3A%7B%22var%22%3A%22parent_job_id%22%7D%7D%5D%7D&page=1&pageSize=10
+
 

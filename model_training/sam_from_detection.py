@@ -10,104 +10,65 @@ OUTPUT_PATH = "/home/baraa/Desktop/Diplomski/Diplomski_rad/model_training/Branch
 SPLITS = ["train", "valid", "test"]
 
 def _boxes_xyxy_from_xywh(boxes_xywh):
-    """Convert list of [x,y,w,h] to [x1,y1,x2,y2]."""
     boxes_xyxy = []
     for box in boxes_xywh:
         x, y, w, h = box
-        boxes_xyxy.append([x, y, x + w, y + h])
+        boxes_xyxy.append([float(x), float(y), float(x+w), float(y+h)])
     return boxes_xyxy
 
-def _match_masks_to_boxes_ordered(pred_masks, pred_boxes, input_boxes_xywh, pred_scores, img_shape):
-    """Match without any score/area threshold."""
-    H, W = img_shape[:2]
-    best_masks = [None] * len(input_boxes_xywh)
-    
-    def compute_iou(box1, box2):
-        x1 = max(box1[0], box2[0])
-        y1 = max(box1[1], box2[1])
-        x2 = min(box1[2], box2[2])
-        y2 = min(box1[3], box2[3])
-        inter = max(0, x2-x1) * max(0, y2-y1)
-        area1 = (box1[2]-box1[0]) * (box1[3]-box1[1])
-        area2 = (box2[2]-box2[0]) * (box2[3]-box2[1])
-        union = area1 + area2 - inter
-        return inter/union if union > 0 else 0
-    
-    # Assign best match to each input box (even zero IoU)
-    for i, input_box in enumerate(input_boxes_xywh):
-        input_xyxy = _boxes_xyxy_from_xywh([input_box])[0]
-        best_iou = -1
-        best_idx = 0  # Default to first
-        
-        for j, (pred_box_t, score) in enumerate(zip(pred_boxes, pred_scores)):
-            pred_box = pred_box_t.cpu().numpy()
-            iou = compute_iou(input_xyxy, pred_box)
-            if iou > best_iou:
-                best_iou = iou
-                best_idx = j
-        
-        # ALWAYS assign (even iou=0)
-        mask_float = pred_masks[best_idx]
-        best_masks[i] = (mask_float > 0).cpu().numpy().astype(np.uint8) * 255  # Any pixel >0
-    
-    return best_masks
-
-def mask_to_yolo_polygon(mask, orig_w, orig_h, class_id=0, epsilon_factor=0.01):
-    """NO area filter - everything becomes polygon."""
+def mask_to_yolo_polygon(mask, orig_w, orig_h, class_id=0, epsilon_factor=0.005):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     yolo_lines = []
     for contour in contours:
+        if cv2.contourArea(contour) < 50:
+            continue
         epsilon = epsilon_factor * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
-        if len(approx) >= 3:  # Minimum triangle
-            points = approx.reshape(-1, 2)
-            normalized = [f"{x/orig_w:.6f}" for x in points[:,0]] + [f"{y/orig_h:.6f}" for y in points[:,1]]
-            yolo_lines.append(f"{class_id} " + " ".join(normalized))
+        if len(approx) < 4:
+            continue
+        points = approx.reshape(-1, 2)
+        normalized = [f"{x/orig_w:.6f}" for x in points[:,0]] + [f"{y/orig_h:.6f}" for y in points[:,1]]
+        yolo_lines.append(f"{class_id} " + " ".join(normalized))
     return yolo_lines
 
-def segment_boxes(processor, model, device, frame_bgr: np.ndarray, boxes_xywh, class_ids, text="tree branch"):
-    """No thresholds - process everything."""
-    if not boxes_xywh:
-        return []
-
+def segment_single_box(processor, model, device, frame_bgr, single_box_xywh, text="tree branch"):
     img_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(img_rgb)
-    boxes_xyxy = _boxes_xyxy_from_xywh(boxes_xywh)
     
-    print(f"  [DEBUG] Processing {len(boxes_xywh)} boxes")
+    single_box_xyxy = _boxes_xyxy_from_xywh([single_box_xywh])[0]
+    input_boxes = [[single_box_xyxy]]  
+    input_boxes_labels = [[1]]  
     
     with torch.inference_mode():
         inputs = processor(
             images=pil_image,
             text=text,
-            input_boxes=[boxes_xyxy],
-            input_boxes_labels=[[1] * len(boxes_xyxy)],
+            input_boxes=input_boxes,
+            input_boxes_labels=input_boxes_labels,
             return_tensors="pt"
         ).to(device)
         
-        if device.type == "cuda":
-            with torch.autocast("cuda", dtype=torch.bfloat16):
+        if device == "cuda":
+            with torch.autocast("cuda", dtype=torch.float):
                 outputs = model(**inputs)
         else:
             outputs = model(**inputs)
         
-        # NO thresholds
         results = processor.post_process_instance_segmentation(
             outputs,
-            threshold=0.0,
-            mask_threshold=0.0,
-            target_sizes=inputs.get("original_sizes").tolist()
+            threshold=0.1,
+            mask_threshold=0.3,
+            target_sizes=[[img_rgb.shape[1], img_rgb.shape[0]]]
         )[0]
     
-    pred_masks = results['masks']
-    pred_boxes = results['boxes']
-    pred_scores = results['scores']
+    if len(results['masks']) == 0:
+        return np.zeros(img_rgb.shape[:2], dtype=np.uint8)
     
-    print(f"  [DEBUG] Model returned {len(pred_masks)} masks, scores: {pred_scores.tolist()}")
+    best_idx = np.argmax(results['scores'].cpu().numpy())
+    mask = results['masks'][best_idx]
+    binary_mask = (mask > 0.5).cpu().numpy().astype(np.uint8) * 255
     
-    best_masks = _match_masks_to_boxes_ordered(pred_masks, pred_boxes, boxes_xywh, pred_scores, img_rgb.shape[:2])
-    
-    return best_masks
+    return binary_mask
 
 def setup_output_dirs():
     for split in SPLITS:
@@ -122,94 +83,84 @@ def process_split(split, processor, model, device):
     out_labels_dir = os.path.join(OUTPUT_PATH, split, "labels")
 
     if not os.path.exists(images_dir):
-        print(f"[{split}] Images directory not found, skipping: {images_dir}")
+        print(f"[{split}] Skipping: {images_dir}")
         return
 
-    image_files = [f for f in os.listdir(images_dir) if f.lower().endswith(".jpg")]
-    print(f"[{split}] Processing {len(image_files)} images...")
+    image_files = [f for f in os.listdir(images_dir) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+    print(f"[{split}] Found {len(image_files)} images")
 
     for img_name in image_files:
         image_path = os.path.join(images_dir, img_name)
-        annotation_path = os.path.join(labels_dir, img_name.replace(".jpg", ".txt"))
+        label_name = img_name.rsplit('.', 1)[0] + ".txt"
+        annotation_path = os.path.join(labels_dir, label_name)
 
         image = cv2.imread(image_path)
         if image is None:
-            print(f"  [WARN] Could not load: {image_path}")
+            print(f"  {img_name}: Load failed")
             continue
 
         if not os.path.exists(annotation_path):
-            print(f"  [WARN] No annotation for: {img_name}, skipping.")
+            print(f"  {img_name}: No labels")
             continue
 
         orig_h, orig_w = image.shape[:2]
 
-        # Parse bboxes from YOLO format to pixel xywh
         boxes_xywh = []
         class_ids = []
-        with open(annotation_path, "r") as f:
+        with open(annotation_path) as f:
             for line in f:
                 parts = line.strip().split()
                 if len(parts) < 5:
                     continue
                 class_id = int(parts[0])
-                cx, cy, bw, bh = float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
-
-                x = (cx - bw / 2) * orig_w
-                y = (cy - bh / 2) * orig_h
-                w = bw * orig_w
-                h = bh * orig_h
-
-                x = max(0, min(orig_w - 1, x))
-                y = max(0, min(orig_h - 1, y))
-                w = min(w, orig_w - x)
-                h = min(h, orig_h - y)
-
-                if w <= 0 or h <= 0:
+                # SAFE parsing - handle extra values
+                coords = list(map(float, parts[1:5]))  # Take exactly 4 coords
+                if len(coords) < 4:
                     continue
-
-                boxes_xywh.append([int(x), int(y), int(w), int(h)])
-                class_ids.append(class_id)
+                cx, cy, bw, bh = coords[:4]
+                
+                x1 = max(0, (cx - bw/2) * orig_w)
+                y1 = max(0, (cy - bh/2) * orig_h)
+                x2 = min(orig_w, (cx + bw/2) * orig_w)
+                y2 = min(orig_h, (cy + bh/2) * orig_h)
+                w, h = x2-x1, y2-y1
+                if w > 5 and h > 5:
+                    boxes_xywh.append([x1, y1, w, h])
+                    class_ids.append(class_id)
 
         if not boxes_xywh:
-            print(f"  [WARN] No valid bboxes in: {img_name}")
+            print(f"  {img_name}: No valid bboxes")
             continue
 
-        print(f"\n  === Processing {img_name} ===")
-        masks = segment_boxes(processor, model, device, image, boxes_xywh, class_ids, text="tree branch")
+        print(f"\n{img_name} ({len(boxes_xywh)} boxes): {orig_w}x{orig_h}")
 
         all_yolo_lines = []
-        for i, (mask, class_id) in enumerate(zip(masks, class_ids)):
-            print(f"  [INFO] Mask {i}: shape={mask.shape}, pixels={mask.sum()}")
-            if mask.ndim == 3:
-                mask = np.squeeze(mask, 0)
-            yolo_lines = mask_to_yolo_polygon(mask, orig_w, orig_h, class_id=class_id)
-            all_yolo_lines.extend(yolo_lines)
-            print(f"  [INFO] Mask {i}: {len(yolo_lines)} polygons")
+        for j, (box_xywh, cls_id) in enumerate(zip(boxes_xywh, class_ids)):
+            mask = segment_single_box(processor, model, device, image, box_xywh, "tree branch")
+            
+            if mask.sum() > 50:
+                yolo_lines = mask_to_yolo_polygon(mask, orig_w, orig_h, cls_id)
+                all_yolo_lines.extend(yolo_lines)
+                print(f"  Box {j}: {len(yolo_lines)} polygons")
 
-        # Save
         cv2.imwrite(os.path.join(out_images_dir, img_name), image)
-        out_label_path = os.path.join(out_labels_dir, img_name.replace(".jpg", ".txt"))
-        with open(out_label_path, "w") as f:
-            f.write("\n".join(all_yolo_lines))
+        with open(os.path.join(out_labels_dir, label_name), 'w') as f:
+            f.write('\n'.join(all_yolo_lines) + '\n')
 
-        print(f"  [OK] {img_name} — {len(all_yolo_lines)} polygons saved")
-        print()
+        print(f"Saved {len(all_yolo_lines)} polygons for {img_name}")
 
 def main():
     setup_output_dirs()
-    
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    device = torch.device(device)
+    
+    print("Loading SAM3...")
     model = Sam3Model.from_pretrained("facebook/sam3").to(device)
     processor = Sam3Processor.from_pretrained("facebook/sam3")
-
+    
     for split in SPLITS:
-        print(f"\n{'='*50}")
-        print(f" Split: {split.upper()}")
-        print(f"{'='*50}")
         process_split(split, processor, model, device)
-
-    print("\nDone! Dataset saved to:", OUTPUT_PATH)
+    
+    print("DONE!")
 
 if __name__ == "__main__":
     main()
