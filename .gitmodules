@@ -1,0 +1,6 @@
+[submodule "detection_pipeline"]
+	path = detection_pipeline
+	url = git@github.com:YassinBaraa/Diplomski_detection_pipeline.git
+[submodule "model_training"]
+	path = model_training
+	url = git@github.com:YassinBaraa/Diplomski_model_training.git
