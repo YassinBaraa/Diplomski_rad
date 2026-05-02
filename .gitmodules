@@ -1,6 +1,12 @@
 [submodule "detection_pipeline"]
 	path = detection_pipeline
 	url = git@github.com:YassinBaraa/Diplomski_detection_pipeline.git
+	branch = ros_detection_pipeline
 [submodule "model_training"]
 	path = model_training
 	url = git@github.com:YassinBaraa/Diplomski_model_training.git
+	branch = main
+[submodule "ibvs"]
+	path = ibvs
+	url = git@github.com:YassinBaraa/Diplomski_ibvs.git
+	branch = ros_ibvs
