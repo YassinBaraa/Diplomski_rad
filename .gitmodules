@@ -10,7 +10,7 @@
 	path = ibvs
 	url = git@github.com:YassinBaraa/Diplomski_ibvs.git
 	branch = ros_ibvs
-[submodule "CAD"]
-	path = CAD
+[submodule "UAV"]
+	path = UAV
 	url = git@github.com:YassinBaraa/Diplomski_uav.git
 	branch = main

@@ -1,0 +1,12 @@
+PiOS (bare metal)
+  └─ Client 1: Camera frames + detection results + timestamps
+                    ↓ UDP
+
+Container 1 (Ubuntu 20.04 + Server + Livox SDK)
+  └─ Receives both UDP streams
+  └─ Post-processing (fuse camera + point cloud data)
+  └─ Output results
+  
+  
+Python UDP
+	https://wiki.python.org/moin/UdpCommunication.html
