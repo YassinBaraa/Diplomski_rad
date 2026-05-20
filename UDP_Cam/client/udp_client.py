@@ -25,10 +25,11 @@ logger = logging.getLogger(__name__)
 def main():
 
     args = argparse.Namespace(
-        server_ip='192.168.0.128',
+        #server_ip='192.168.0.128',
+        server_ip='192.168.1.82',
         server_port=5005,
         model='model/best_detection.pt',
-        conf=0.7,
+        conf=0.3,
         width=1280,
         height=720,
         max_frames=None
@@ -138,7 +139,7 @@ def main():
             
             # Serialize and send
             try:
-                packet = DetectionPacket(frame, tracks)
+                packet = DetectionPacket(None, tracks)
                 data = packet.to_bytes()
                 sock.sendto(data, server_addr)
                 packet_count += 1
