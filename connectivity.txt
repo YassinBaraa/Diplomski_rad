@@ -10,3 +10,307 @@ Container 1 (Ubuntu 20.04 + Server + Livox SDK)
   
 Python UDP
 	https://wiki.python.org/moin/UdpCommunication.html
+	
+https://github.com/Livox-SDK/livox_ros_driver2
+https://github.com/Livox-SDK/Livox-SDK2
+
+https://my.cytron.io/tutorial/raspberry-pi-ai-kit-custom-model-deployment
+https://openmv.io/pages/download?srsltid=AfmBOopjVOs50X1Vrgin26NPfaAsEttOUQTFB5c0dnc3FycNT3VBGDXv
+
+
+[info] Resources optimization params: max_control_utilization=90%, max_compute_utilization=90%, max_compute_16bit_utilization=90%, max_memory_utilization (weights)=85%, max_input_aligner_utilization=90%, max_apu_utilization=90%
+[info] Finding the best partition to contexts...
+[.<==>...................................] Duration: 00:44:57                                                                                                             
+Found valid partition to 3 contexts
+[info] Searching for a better partition...
+[........................<==>............] Duration: 00:01:49                                                                                                             
+Found valid partition to 3 contexts, Performance improved by 5.1%
+[info] Searching for a better partition...
+[..................................<==>..] Elapsed: 00:16:42                                                                                                              
+[info] Partition to contexts finished successfully
+[info] Partitioner finished after 167 iterations, Time it took: 1h 3m 30s 661ms
+[info] Applying selected partition to 3 contexts...
+[info] Validating layers feasibility
+
+Validating yolov8m_context_0 layer by layer (100%)
+
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+
+● Finished                                                                               
+
+
+Validating yolov8m_context_1 layer by layer (100%)
+
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+
+● Finished                                                                 
+
+
+Validating yolov8m_context_2 layer by layer (100%)
+
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+
+● Finished                                                                                                                  
+
+[info] Layers feasibility validated successfully
+[info] Running resources allocation (mapping) flow, time per context: 59m 59s
+Context:0/2 Iteration 8: Trying parallel mapping...  
+          cluster_0  cluster_1  cluster_2  cluster_3  cluster_4  cluster_5  cluster_6  cluster_7  prepost 
+ worker0  *          *          *          *          *          *          *          *          V       
+ worker1  *          *          *          *          *          *          *          *          V       
+ worker2  V          V          V          V          V          V          V          V          V       
+ worker3  *          *          *          *          *          *          *          *          V       
+Context:1/2 Iteration 0: Trying parallel splits...   
+          cluster_0  cluster_1  cluster_2  cluster_3  cluster_4  cluster_5  cluster_6  cluster_7  prepost 
+ worker0                                                                                                  
+ worker1                                                                                                  
+ worker2  V          V          V          V          V          V          V          V          V       
+ worker3                                                                                                  
+Context:2/2 Iteration 4: Trying parallel mapping...  
+          cluster_0  cluster_1  cluster_2  cluster_3  cluster_4  cluster_5  cluster_6  cluster_7  prepost 
+ worker0  V          V          V          V          V          V          V          V          V       
+ worker1  V          V          V          V          V          V          V          V          V       
+ worker2  V          V          V          V          V          V          V          V          V       
+ worker3  V          V          V          V          V          V          V          V          V       
+
+  01:37
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 0
+Reverts on pre-mapping validation: 0
+Reverts on split failed: 0
+
+[info] yolov8m_context_0 (yolov8m_context_0):
+Iterations: 8
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 0
+Reverts on pre-mapping validation: 6
+Reverts on split failed: 0
+[info] yolov8m_context_1 (yolov8m_context_1):
+Iterations: 4
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 0
+Reverts on pre-mapping validation: 0
+Reverts on split failed: 0
+[info] yolov8m_context_2 (yolov8m_context_2):
+Iterations: 4
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 0
+Reverts on pre-mapping validation: 0
+Reverts on split failed: 0
+[info] yolov8m_context_0 utilization: 
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Cluster   | Control Utilization | Compute Utilization | Memory Utilization |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | cluster_0 | 75%                 | 75%                 | 63.3%              |
+[info] | cluster_1 | 93.8%               | 100%                | 84.4%              |
+[info] | cluster_2 | 100%                | 93.8%               | 98.4%              |
+[info] | cluster_3 | 87.5%               | 93.8%               | 72.7%              |
+[info] | cluster_4 | 100%                | 96.9%               | 93%                |
+[info] | cluster_5 | 75%                 | 65.6%               | 53.9%              |
+[info] | cluster_6 | 56.3%               | 56.3%               | 53.9%              |
+[info] | cluster_7 | 100%                | 92.2%               | 77.3%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Total     | 85.9%               | 84.2%               | 74.6%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] yolov8m_context_1 utilization: 
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Cluster   | Control Utilization | Compute Utilization | Memory Utilization |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | cluster_0 | 81.3%               | 67.2%               | 88.3%              |
+[info] | cluster_1 | 81.3%               | 81.3%               | 81.3%              |
+[info] | cluster_2 | 100%                | 87.5%               | 78.1%              |
+[info] | cluster_3 | 100%                | 100%                | 78.9%              |
+[info] | cluster_4 | 100%                | 100%                | 74.2%              |
+[info] | cluster_5 | 100%                | 98.4%               | 93%                |
+[info] | cluster_6 | 81.3%               | 90.6%               | 72.7%              |
+[info] | cluster_7 | 81.3%               | 76.6%               | 71.9%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Total     | 90.6%               | 87.7%               | 79.8%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] yolov8m_context_2 utilization: 
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Cluster   | Control Utilization | Compute Utilization | Memory Utilization |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | cluster_0 | 43.8%               | 53.1%               | 64.8%              |
+[info] | cluster_1 | 68.8%               | 76.6%               | 93.8%              |
+[info] | cluster_2 | 43.8%               | 34.4%               | 46.9%              |
+[info] | cluster_3 | 50%                 | 50%                 | 64.1%              |
+[info] | cluster_4 | 31.3%               | 37.5%               | 43.8%              |
+[info] | cluster_5 | 56.3%               | 57.8%               | 43.8%              |
+[info] | cluster_6 | 75%                 | 70.3%               | 86.7%              |
+[info] | cluster_7 | 68.8%               | 87.5%               | 83.6%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Total     | 54.7%               | 58.4%               | 65.9%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] Successful Mapping (allocation time: 1h 8m 0s)
+[info] Compiling kernels of yolov8m_context_0...
+[info] Compiling kernels of yolov8m_context_1...
+[info] Compiling kernels of yolov8m_context_2...
+[info] Bandwidth of model inputs: 9.375 Mbps, outputs: 4.16565 Mbps (for a single frame)
+[info] Bandwidth of DDR buffers: 0.0 Mbps (for a single frame)
+[info] Bandwidth of inter context tensors: 47.168 Mbps (for a single frame)
+[info] Building HEF...
+[info] Successful Compilation (compilation time: 51s)
+[info] Saved HAR to: /home/hailo/yolov8m.har
+<Hailo Model Zoo INFO> HEF file written to yolov8m.hef
+
+----------------------------------------------------------------------------------------------------
+[.......<==>.............................] Elapsed: 00:01:24                                                                                                              
+[info] Partition to contexts finished successfully
+[info] Partitioner finished after 106 iterations, Time it took: 19m 57s 151ms
+[info] Applying selected partition to 3 contexts...
+[info] Validating layers feasibility
+
+Validating yolov8m_seg_context_0 layer by layer (100%)
+
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+
+● Finished                                                                               
+
+
+Validating yolov8m_seg_context_1 layer by layer (100%)
+
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+
+● Finished                                                                                                                          
+
+
+Validating yolov8m_seg_context_2 layer by layer (100%)
+
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+ +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  + 
+
+● Finished                                                                 
+
+[info] Layers feasibility validated successfully
+[info] Running resources allocation (mapping) flow, time per context: 59m 59s
+Context:0/2 Iteration 12: Trying parallel mapping...  
+          cluster_0  cluster_1  cluster_2  cluster_3  cluster_4  cluster_5  cluster_6  cluster_7  prepost 
+ worker0  *          *          *          *          *          *          *          *          V       
+ worker1  V          V          V          V          V          V          V          V          V       
+ worker2  *          *          *          *          *          *          *          *          V       
+ worker3  *          *          *          *          *          *          *          *          V       
+Context:1/2 Iteration 4: Trying parallel mapping...  
+          cluster_0  cluster_1  cluster_2  cluster_3  cluster_4  cluster_5  cluster_6  cluster_7  prepost 
+ worker0  *          *          *          *          *          *          *          *          V       
+ worker1  V          V          V          V          V          V          V          V          V       
+ worker2  V          V          V          V          V          V          V          V          V       
+ worker3  V          V          V          V          V          V          V          V          V       
+Context:2/2 Iteration 4: Trying parallel mapping...  
+          cluster_0  cluster_1  cluster_2  cluster_3  cluster_4  cluster_5  cluster_6  cluster_7  prepost 
+ worker0  *          *          *          *          *          *          *          *          V       
+ worker1  *          *          *          *          *          *          *          *          V       
+ worker2  V          V          V          V          V          V          V          V          V       
+ worker3  *          *          *          *          *          *          *          *          V       
+
+  00:39
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 0
+Reverts on pre-mapping validation: 0
+Reverts on split failed: 0
+
+[info] yolov8m_seg_context_0 (yolov8m_seg_context_0):
+Iterations: 12
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 0
+Reverts on pre-mapping validation: 9
+Reverts on split failed: 0
+[info] yolov8m_seg_context_1 (yolov8m_seg_context_1):
+Iterations: 4
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 1
+Reverts on pre-mapping validation: 0
+Reverts on split failed: 0
+[info] yolov8m_seg_context_2 (yolov8m_seg_context_2):
+Iterations: 4
+Reverts on cluster mapping: 0
+Reverts on inter-cluster connectivity: 2
+Reverts on pre-mapping validation: 0
+Reverts on split failed: 0
+[info] yolov8m_seg_context_0 utilization: 
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Cluster   | Control Utilization | Compute Utilization | Memory Utilization |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | cluster_0 | 56.3%               | 45.3%               | 68%                |
+[info] | cluster_1 | 68.8%               | 34.4%               | 70.3%              |
+[info] | cluster_2 | 31.3%               | 35.9%               | 96.1%              |
+[info] | cluster_3 | 25%                 | 29.7%               | 32%                |
+[info] | cluster_4 | 50%                 | 51.6%               | 57%                |
+[info] | cluster_5 | 56.3%               | 56.3%               | 60.9%              |
+[info] | cluster_6 | 87.5%               | 92.2%               | 87.5%              |
+[info] | cluster_7 | 100%                | 85.9%               | 73.4%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Total     | 59.4%               | 53.9%               | 68.2%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] yolov8m_seg_context_1 utilization: 
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Cluster   | Control Utilization | Compute Utilization | Memory Utilization |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | cluster_0 | 75%                 | 92.2%               | 65.6%              |
+[info] | cluster_1 | 37.5%               | 17.2%               | 25%                |
+[info] | cluster_2 | 68.8%               | 73.4%               | 78.9%              |
+[info] | cluster_3 | 43.8%               | 76.6%               | 55.5%              |
+[info] | cluster_4 | 56.3%               | 43.8%               | 56.3%              |
+[info] | cluster_5 | 43.8%               | 21.9%               | 40.6%              |
+[info] | cluster_6 | 81.3%               | 81.3%               | 85.2%              |
+[info] | cluster_7 | 62.5%               | 76.6%               | 64.8%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Total     | 58.6%               | 60.4%               | 59%                |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] yolov8m_seg_context_2 utilization: 
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Cluster   | Control Utilization | Compute Utilization | Memory Utilization |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | cluster_0 | 56.3%               | 75%                 | 95.3%              |
+[info] | cluster_1 | 87.5%               | 82.8%               | 94.5%              |
+[info] | cluster_2 | 68.8%               | 81.3%               | 98.4%              |
+[info] | cluster_3 | 43.8%               | 28.1%               | 36.7%              |
+[info] | cluster_4 | 37.5%               | 26.6%               | 36.7%              |
+[info] | cluster_5 | 81.3%               | 98.4%               | 44.5%              |
+[info] | cluster_6 | 87.5%               | 79.7%               | 89.1%              |
+[info] | cluster_7 | 25%                 | 17.2%               | 10.9%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] | Total     | 60.9%               | 61.1%               | 63.3%              |
+[info] +-----------+---------------------+---------------------+--------------------+
+[info] Successful Mapping (allocation time: 24m 26s)
+[info] Compiling kernels of yolov8m_seg_context_0...
+[info] Compiling kernels of yolov8m_seg_context_1...
+[info] Compiling kernels of yolov8m_seg_context_2...
+[info] Bandwidth of model inputs: 9.375 Mbps, outputs: 12.4664 Mbps (for a single frame)
+[info] Bandwidth of DDR buffers: 0.0 Mbps (for a single frame)
+[info] Bandwidth of inter context tensors: 55.0781 Mbps (for a single frame)
+[info] Building HEF...
+[info] Successful Compilation (compilation time: 1m 5s)
+[info] Saved HAR to: /home/hailo/yolov8m_seg.har
+<Hailo Model Zoo INFO> HEF file written to yolov8m_seg.hef
+
+-----------------------------------------------------------------------------------------------------
+
+    Branch diameter above your gripper minimum.
+
+    Low local curvature.
+
+    Enough free space for approach and landing.
+
+    Reliable camera confidence and LiDAR support.
+
+    Close to a strong support region, usually nearer a branch junction than a fragile tip.
