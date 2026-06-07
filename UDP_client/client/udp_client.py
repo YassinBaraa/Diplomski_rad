@@ -22,6 +22,7 @@ class UDPSender:
                 "timestamp": datetime.now().timestamp(),
             }).encode()
             self._sock.sendto(payload, self._addr)
+            print("packet sent \n")
         except Exception as e:
             logger.warning(f"UDP send failed: {e}")
 
