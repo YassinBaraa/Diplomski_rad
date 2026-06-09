@@ -11,7 +11,7 @@ class UDPSender:
         self._addr = (host, port)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        logger.info(f"UDP sender → {self._addr}")
+        logger.info(f"UDP sender -> {self._addr}")
 
     def send(self, error_x, error_y, distance_mm=None):
         try:
