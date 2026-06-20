@@ -54,12 +54,13 @@ This is the root repository. All subdirectories are git submodules.
 
 ```
 Diplomski_rad/
-├── detection_pipeline/   # YOLOv8-seg + Hailo + candidate point pipeline
-├── ibvs/                 # KLT feature tracking + proportional visual controller
-├── UDP_client/           # Full-stack entry point, recording, UDP send
-├── model_training/       # YOLOv8 training, SAM annotation, Hailo export
-├── UAV/                  # ROS flight_setup package, Pixhawk params, CAD files
-└── vid/                  # Annotated test recordings
+├── detection_pipeline/          # YOLOv8-seg + Hailo + candidate point pipeline
+├── ibvs/                        # KLT feature tracking + proportional visual controller
+├── UDP_client/                  # Full-stack entry point, recording, UDP send
+├── Diplomski_pearch_mission/    # ROS Noetic perch controller + UDP receiver (Docker)
+├── model_training/              # YOLOv8 training, SAM annotation, Hailo export
+├── UAV/                         # ROS flight_setup package, Pixhawk params, CAD files
+└── vid/                         # Annotated test recordings
 ```
 
 ## Submodules
@@ -71,6 +72,7 @@ Diplomski_rad/
 | [UDP_client](UDP_client/) | `master` | Entry point: runs full stack, records video, sends UDP |
 | [model_training](model_training/) | `main` | YOLOv8 training and Hailo model compilation |
 | [UAV](UAV/) | `main` | Flight controller ROS package, PX4 parameters, CAD |
+| [Diplomski_pearch_mission](Diplomski_pearch_mission/) | `main` | ROS Noetic perch controller + UDP receiver (Docker) |
 
 ---
 
