@@ -3,6 +3,8 @@ import sys
 import os
 import cv2
 import numpy as np
+
+HAS_DISPLAY = bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 from pathlib import Path
 from datetime import datetime
 
@@ -22,7 +24,8 @@ FPS = 10
 # --- Source selection ---
 # Set USE_NICLA = True for Nicla camera + Hailo (.hef)
 # Set USE_NICLA = False for MP4 + YOLO (.pt)
-USE_NICLA = False
+#USE_NICLA = False
+USE_NICLA = True
 
 
 def main():
@@ -53,13 +56,13 @@ def main():
             from sources.NiclaSource import NiclaSource
             from detectors.HailoSegDetector import HailoSegDetector
             dp_source = NiclaSource()
-            dp_detector = HailoSegDetector(hef_path=str(_here / "model" / "yolov8_segmentation.hef"), conf=0.7)
+            dp_detector = HailoSegDetector(hef_path=str(_here / "model" / "yolov8_segmentation.hef"), conf=0.4)
             print("Source: Nicla + Hailo (.hef)")
         else:
             from sources.MP4Source import MP4Source
             from detectors.YOLOBranchSeg import YOLOBranchSeg
             dp_source = MP4Source(str(_here / "sources" / "example.mp4"))
-            dp_detector = YOLOBranchSeg(model_path=str(_here / "model" / "best_small.pt"), conf=0.7)
+            dp_detector = YOLOBranchSeg(model_path=str(_here / "model" / "best_small.pt"), conf=0.4)
             print("Source: MP4 + YOLO (.pt)")
 
         from trackers.ByteTrack import ByteTrack
@@ -81,8 +84,9 @@ def main():
         def detection_iterator():
             for ctx in dp_pipeline.run():
                 display = ctx.debug.get("branch_score_image", ctx.frame)
-                cv2.imshow("Detection Pipeline", display)
-                cv2.waitKey(1)
+                if HAS_DISPLAY:
+                    cv2.imshow("Detection Pipeline", display)
+                    cv2.waitKey(1)
                 yield {
                     "frame": ctx.frame,
                     "final_point": ctx.final_point,
@@ -147,15 +151,17 @@ def main():
             ctrl = ctx.debug.get("controller", {})
             velocity = ctx.debug.get("velocity_command")
             error = ctx.debug.get("control_error_px")
+            n_tracked = len(ctx.extracted_features) if ctx.extracted_features is not None else 0
 
             if error is not None:
                 sender.send(float(error[0]), float(error[1]), ctx.distance_mm)
-                print(f"  -> UDP sent: error=({error[0]:.2f}, {error[1]:.2f}), dist={ctx.distance_mm}")
-
-            print(
-                f"Frame {frame_count}: tracked={ctrl.get('n_tracked', 0)}, "
-                f"source={ctrl.get('point_source', 'none')}, error={error}, vel={velocity}"
-            )
+                print(f"[main] Frame {frame_count}: UDP sent — "
+                      f"error=({error[0]:.2f}, {error[1]:.2f}), dist={ctx.distance_mm} mm")
+            else:
+                print(f"[main] Frame {frame_count}: no error — "
+                      f"source={ctrl.get('point_source','none')}, "
+                      f"tracked={n_tracked}, dist={ctx.distance_mm} mm, "
+                      f"status={ctrl.get('status','?')}")
 
             vis = ctx.frame.copy()
             h, w = vis.shape[:2]
@@ -179,9 +185,10 @@ def main():
                 )
                 cv2.arrowedLine(vis, center, tip, (0, 165, 255), 2, tipLength=0.3)
 
-            cv2.imshow('IBVS', vis)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            if HAS_DISPLAY:
+                cv2.imshow('IBVS', vis)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
     finally:
         if writer is not None:
@@ -189,7 +196,8 @@ def main():
             print(f"Saved {frame_count} frames to {out_path}")
         sender.close()
         source.release()
-        cv2.destroyAllWindows()
+        if HAS_DISPLAY:
+            cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
