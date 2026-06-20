@@ -14,3 +14,7 @@
 	path = UAV
 	url = git@github.com:YassinBaraa/Diplomski_uav.git
 	branch = main
+[submodule "pearch_mission"]
+	path = Diplomski_pearch_mission
+	url = git@github.com:YassinBaraa/Diplomski_pearch_mission.git
+	branch = main
