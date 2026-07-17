@@ -5,3 +5,6 @@
 */sam3
 *bag
 *.mp4
+!docs/videos/*.mp4
+/Diplomski_rad___Baraa_Yassin
+*.zip

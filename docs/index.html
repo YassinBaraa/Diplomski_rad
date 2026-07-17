@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAV Branch Perching System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --bg2: #141720;
+      --bg3: #1c2030;
+      --border: #2a2f42;
+      --accent: #4f8ef7;
+      --accent2: #7b5cfa;
+      --text: #e8eaf0;
+      --muted: #8892a8;
+      --card: #181c28;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 15, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 56px;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      margin-left: auto;
+    }
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(79, 142, 247, 0.12);
+      border: 1px solid rgba(79, 142, 247, 0.3);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.75rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .pill {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ── Section layout ────────────────────────────────────── */
+    section { padding: 4rem 1.5rem; border-top: 1px solid var(--border); }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .section-desc {
+      color: var(--muted);
+      max-width: 620px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Pipeline flow ─────────────────────────────────────── */
+    .pipeline-flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 3rem;
+    }
+    .pipe-node {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .pipe-arrow {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+    .pipe-node.accent { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Video grid ────────────────────────────────────────── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .video-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .video-card video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      background: #000;
+      display: block;
+    }
+    .video-card-body {
+      padding: 1rem 1.1rem 1.2rem;
+    }
+    .video-card-body h3 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .video-card-body p {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .video-card-body .stage-tag {
+      display: inline-block;
+      background: rgba(79, 142, 247, 0.1);
+      border: 1px solid rgba(79, 142, 247, 0.25);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.5rem;
+    }
+    .video-card-body .stage-tag.purple {
+      background: rgba(123, 92, 250, 0.1);
+      border-color: rgba(123, 92, 250, 0.25);
+      color: var(--accent2);
+    }
+    .video-card-body .stage-tag.green {
+      background: rgba(52, 211, 153, 0.1);
+      border-color: rgba(52, 211, 153, 0.25);
+      color: #34d399;
+    }
+
+    /* wide card that spans full width on large screens */
+    .video-card.wide {
+      grid-column: 1 / -1;
+    }
+    .video-card.wide video {
+      aspect-ratio: 16/9;
+      max-height: 520px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    /* ── Arch diagram ──────────────────────────────────────── */
+    .arch-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 700px) {
+      .arch-cols { grid-template-columns: 1fr; }
+      .video-card.wide { grid-column: auto; }
+    }
+    .arch-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .arch-box h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .arch-box ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .arch-box ul li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .arch-box ul li::before {
+      content: '→';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 0.05em;
+    }
+
+    /* ── Spec table ────────────────────────────────────────── */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .spec-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+    }
+    .spec-card .spec-key {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .spec-card .spec-val {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── Repos ─────────────────────────────────────────────── */
+    .repo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .repo-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .repo-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .repo-card p {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .repo-card a {
+      font-size: 0.8rem;
+      margin-top: auto;
+    }
+
+    /* ── Abstract ──────────────────────────────────────────── */
+    .abstract-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      padding: 1.5rem 2rem;
+      color: var(--muted);
+      font-size: 0.93rem;
+      line-height: 1.75;
+      max-width: 820px;
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">UAV Perching System</span>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#detection">Detection</a></li>
+    <li><a href="#ibvs">IBVS</a></li>
+    <li><a href="#mission">Mission</a></li>
+    <li><a href="#hardware">Hardware</a></li>
+    <li><a href="#repos">Code</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Master's Thesis · 2026</div>
+  <h1>Autonomous UAV<br><span>Branch Perching System</span></h1>
+  <p class="hero-sub">
+    Real-time edge AI perception, KLT visual tracking, and image-based visual
+    servoing on a custom 7" UAV — no ground compute required.
+  </p>
+  <div class="hero-meta">
+    <span class="pill">Baraa Yassin</span>
+    <span class="pill">FER Zagreb</span>
+    <span class="pill">YOLOv8 + Hailo-8</span>
+    <span class="pill">ROS Noetic</span>
+    <span class="pill">Raspberry Pi 5</span>
+  </div>
+  <div class="btn-group">
+    <a class="btn btn-primary" href="#mission">Watch the Perch</a>
+    <a class="btn btn-outline" href="https://github.com/YassinBaraa/Diplomski_rad" target="_blank">GitHub ↗</a>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="container">
+    <div class="section-label">System Overview</div>
+    <h2 class="section-title">From Camera to Perch in One Pipeline</h2>
+    <p class="section-desc">
+      The full stack runs onboard. A Raspberry Pi 5 with a Hailo AI Hat+ handles
+      segmentation inference, candidate scoring, and visual servoing. Velocity
+      commands are shipped over UDP to a Docker ROS container driving the flight
+      stack.
+    </p>
+
+    <div class="pipeline-flow">
+      <div class="pipe-node accent">Nicla Vision</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node">Hailo-8 Inference</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node">Postprocessing</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node">KLT Tracking</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node">IBVS</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node">UDP</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node">ROS Controller</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node accent">Perched ✓</div>
+    </div>
+
+    <div class="arch-cols">
+      <div class="arch-box">
+        <h3>🟦 Pi OS Side</h3>
+        <ul>
+          <li>Nicla Vision streams JPEG frames + ToF distance over USB serial</li>
+          <li>YOLOv8m-seg (.hef) runs at 10 fps on the Hailo AI Hat+</li>
+          <li>ByteTrack assigns persistent IDs across detections</li>
+          <li>Mask extraction → distance heatmap → skeleton → candidate scoring</li>
+          <li>20-second warmup clusters candidate points and locks the final perch point</li>
+          <li>KLT tracker (FAST+Harris+Lucas-Kanade) tracks the point in real time</li>
+          <li>Pixel error + ToF packed as JSON and sent over UDP on port 5005</li>
+        </ul>
+      </div>
+      <div class="arch-box">
+        <h3>🟧 Docker / ROS Side</h3>
+        <ul>
+          <li>udp_receiver_node listens on port 5005, publishes /perch/error_x, /perch/error_y, /perch/tof</li>
+          <li>perch_controller_node runs a three-stage state machine: ALIGNING → APPROACHING → PERCHING</li>
+          <li>OptiTrack provides absolute odometry over VRPN</li>
+          <li>Proportional corrections issued at 1 Hz as absolute position setpoints</li>
+          <li>Perching trajectory: drop 0.40 m below branch, climb 0.60 m above to engage gripper</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABSTRACT -->
+<section id="abstract" style="padding-top:2rem;padding-bottom:2rem;border-top:none;">
+  <div class="container">
+    <div class="abstract-box">
+      This thesis presents the development of an autonomous perching system for a small UAV. The system
+      combines instance segmentation, feature tracking, and image-based visual servoing (IBVS) into a pipeline
+      that runs entirely onboard without relying on external compute. A YOLOv8m-seg model is trained on a branch
+      detection dataset, converted to HEF, and deployed on a Raspberry Pi 5 with a Raspberry Pi AI Hat+ for
+      real-time inference at the edge. A postprocessing pipeline identifies and scores branch candidates, locks onto
+      the most consistently detected perch point, then hands off to KLT-based tracking. The pixel error is sent over
+      UDP to a ROS node in Docker, which drives the UAV through alignment, approach, and the final perching maneuver.
+    </div>
+  </div>
+</section>
+
+<!-- DETECTION PIPELINE -->
+<section id="detection">
+  <div class="container">
+    <div class="section-label">Detection Pipeline</div>
+    <h2 class="section-title">From Raw Frame to Perch Point</h2>
+    <p class="section-desc">
+      Four postprocessing stages transform the raw segmentation mask into a precise perch point candidate.
+      The pipeline runs on every frame during the 20-second warmup, then hands control to the KLT tracker.
+    </p>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/det_hailo_raw.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag">Stage 0</div>
+          <h3>Hailo Raw Output</h3>
+          <p>Raw segmentation mask and bounding box from the quantized YOLOv8m-seg model running at 10 fps on the Hailo AI Hat+. No postprocessing applied.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/det_stage1_mask.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag">Stage 1</div>
+          <h3>Mask Extraction</h3>
+          <p>Per-pixel confidence thresholded at 0.5 to produce a clean binary mask isolating the branch from the background.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/det_stage2_heatmap.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag">Stage 2</div>
+          <h3>Distance Heatmap</h3>
+          <p>Euclidean distance transform on the binary mask. Pixels further from branch edges score higher — they sit at the thickest, most stable part of the branch.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/det_stage3_skeleton.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag">Stage 3</div>
+          <h3>Bitmask Skeleton</h3>
+          <p>Medial axis skeletonization reduces the branch to a single-pixel centerline. Candidate points are restricted to this line.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/det_stage4_scoring.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag">Stage 4</div>
+          <h3>Candidate Scoring</h3>
+          <p>Weighted combination of model confidence (0.4), distance from center (0.35), and detection size (0.25). Filters remove vertical branches, out-of-size detections, and low-confidence outputs.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/det_stage5_full.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag">Stage 5</div>
+          <h3>Full Pipeline</h3>
+          <p>All stages combined — segmentation overlay, skeleton, and the single best candidate point rendered on the live camera feed during the warmup period.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- IBVS -->
+<section id="ibvs">
+  <div class="container">
+    <div class="section-label">IBVS</div>
+    <h2 class="section-title">Image-Based Visual Servoing</h2>
+    <p class="section-desc">
+      Once the perch point is locked, the detection model shuts down. KLT optical flow tracking
+      takes over and the IBVS computes pixel error between the tracked point and the frame center,
+      which drives the UAV directly.
+    </p>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/ibvs_stage1_features.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag purple">Stage 1</div>
+          <h3>Feature Extraction</h3>
+          <p>FAST detector followed by Harris corner response ranking extracts the strongest, most trackable corner features in a local region around the locked perch point.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/ibvs_stage2_klt.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag purple">Stage 2</div>
+          <h3>KLT Tracking</h3>
+          <p>Lucas-Kanade optical flow with pyramidal representation tracks the features across frames. The perch point position is estimated from the stored feature offsets relative to the reference frame.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/ibvs_stage3_controller.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag purple">Stage 3</div>
+          <h3>Controller Output</h3>
+          <p>The yellow arrow shows the error vector between the estimated perch point and the frame center. Arrow length is proportional to error magnitude. This error is sent as the IBVS control signal.</p>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <video controls preload="none">
+          <source src="videos/ibvs_stage4_full.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag purple">Stage 4</div>
+          <h3>Full IBVS Pipeline</h3>
+          <p>Combined view: KLT features (green), tracked perch point (red circle), and control error arrow (orange) all overlaid on the live camera feed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERCH MISSION -->
+<section id="mission">
+  <div class="container">
+    <div class="section-label">Perch Mission</div>
+    <h2 class="section-title">ALIGNING → APPROACHING → PERCHING</h2>
+    <p class="section-desc">
+      The full mission runs from a single launch command. OptiTrack provides odometry and the perch
+      controller drives the UAV through all three stages before executing the gripper maneuver.
+    </p>
+
+    <div class="video-grid" style="margin-bottom:2rem;">
+      <div class="video-card wide">
+        <video controls preload="none">
+          <source src="videos/perch_mission_3pv.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag green">Flight</div>
+          <h3>Third-Person View — Full Perch Mission</h3>
+          <p>
+            Third-person view of the UAV during the complete perch mission inside the indoor test arena.
+            The UAV starts 3–4 m from the branch, aligns, approaches, and executes the perching maneuver
+            without any manual intervention after launch.
+          </p>
+        </div>
+      </div>
+
+      <div class="video-card wide">
+        <video controls preload="none">
+          <source src="videos/success.mp4" type="video/mp4" />
+        </video>
+        <div class="video-card-body">
+          <div class="stage-tag green">Result</div>
+          <h3>Successful Perch</h3>
+          <p>
+            The UAV drops 0.40 m below the perch point and sweeps upward 0.60 m to drive the passive spring
+            gripper into the branch and engage it. The motors cut and the UAV holds its position on the branch.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-cols">
+      <div class="arch-box">
+        <h3>📐 Stage Details</h3>
+        <ul>
+          <li><strong>ALIGNING</strong> — pixel errors mapped to y/z corrections at 1 Hz; transitions when combined error &lt; 10 px</li>
+          <li><strong>APPROACHING</strong> — fixed forward steps along x while holding y/z; falls back to ALIGNING if error drifts &gt; 20 px</li>
+          <li><strong>PERCHING</strong> — triggered when ToF &lt; 200 mm; two-leg trajectory: drop 0.40 m → climb 0.60 m</li>
+        </ul>
+      </div>
+      <div class="arch-box">
+        <h3>📊 Recorded Mission</h3>
+        <ul>
+          <li>~39 seconds of perch controller activity from bag file</li>
+          <li>Initial combined pixel error ~60 px, converges to &lt; 10 px over 20 s</li>
+          <li>X-axis advances from ~0.2 m to ~0.7 m during approach</li>
+          <li>Y and Z remain stable throughout approach phase</li>
+          <li>Perch maneuver visible as sharp altitude drop then climb in OptiTrack data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HARDWARE -->
+<section id="hardware">
+  <div class="container">
+    <div class="section-label">Hardware</div>
+    <h2 class="section-title">Platform</h2>
+    <p class="section-desc">
+      Built on a 7-inch carbon fibre frame. All perception and control runs onboard.
+    </p>
+
+    <div class="spec-grid">
+      <div class="spec-card">
+        <div class="spec-key">Frame</div>
+        <div class="spec-val">7" carbon fibre (GEPRC MK4)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Motors</div>
+        <div class="spec-val">T-Motor F90 2810 × 4</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Flight Controller</div>
+        <div class="spec-val">SpeedyBee F405 (MAVLink)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Onboard Computer</div>
+        <div class="spec-val">Raspberry Pi 5 (8 GB)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">AI Accelerator</div>
+        <div class="spec-val">Hailo-8 AI Hat+ (10 fps)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Camera + ToF</div>
+        <div class="spec-val">Arduino Nicla Vision (2MP + VL53L1X)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Gripper</div>
+        <div class="spec-val">Custom 3D-printed passive spring (PETG)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Localization</div>
+        <div class="spec-val">OptiTrack (VRPN over LAN)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Model</div>
+        <div class="spec-val">YOLOv8m-seg → HEF (int8)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Training</div>
+        <div class="spec-val">1365 imgs, SAM3 annotation, 300 epochs</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">ROS</div>
+        <div class="spec-val">Noetic in Docker (uav_ros_stack_binary)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-key">Communication</div>
+        <div class="spec-val">UDP JSON on port 5005 (Pi OS → Docker)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPOS -->
+<section id="repos">
+  <div class="container">
+    <div class="section-label">Code</div>
+    <h2 class="section-title">Repositories</h2>
+    <p class="section-desc">All submodules are public. Clone with <code style="background:var(--bg3);padding:0.1em 0.4em;border-radius:4px;font-size:0.85em;">--recurse-submodules</code>.</p>
+
+    <div class="repo-grid">
+      <div class="repo-card">
+        <h3>🗂 Root Repo</h3>
+        <p>Thesis root with all submodules, README, and this site.</p>
+        <a href="https://github.com/YassinBaraa/Diplomski_rad" target="_blank">YassinBaraa/Diplomski_rad ↗</a>
+      </div>
+      <div class="repo-card">
+        <h3>🔍 detection_pipeline</h3>
+        <p>YOLOv8-seg + Hailo inference, ByteTrack, postprocessing stages, and warmup point locking.</p>
+        <a href="https://github.com/YassinBaraa/Diplomski_rad/tree/master/detection_pipeline" target="_blank">View submodule ↗</a>
+      </div>
+      <div class="repo-card">
+        <h3>🎯 ibvs</h3>
+        <p>FAST+Harris feature extraction, KLT tracking, and proportional pixel-error controller.</p>
+        <a href="https://github.com/YassinBaraa/Diplomski_rad/tree/master/ibvs" target="_blank">View submodule ↗</a>
+      </div>
+      <div class="repo-card">
+        <h3>📡 UDP_client</h3>
+        <p>Full-stack entry point: runs detection + IBVS, records video, sends UDP packet to Docker.</p>
+        <a href="https://github.com/YassinBaraa/Diplomski_rad/tree/master/UDP_client" target="_blank">View submodule ↗</a>
+      </div>
+      <div class="repo-card">
+        <h3>🚁 Diplomski_pearch_mission</h3>
+        <p>ROS Noetic perch controller and UDP receiver node, runs in Docker on the ground station.</p>
+        <a href="https://github.com/YassinBaraa/Diplomski_rad/tree/master/Diplomski_pearch_mission" target="_blank">View submodule ↗</a>
+      </div>
+      <div class="repo-card">
+        <h3>🧠 model_training</h3>
+        <p>YOLOv8 training scripts, SAM3 annotation pipeline, and Hailo HEF conversion workflow.</p>
+        <a href="https://github.com/YassinBaraa/Diplomski_rad/tree/master/model_training" target="_blank">View submodule ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Baraa Yassin · Master's Thesis · Faculty of Electrical Engineering and Computing, University of Zagreb · 2026
+</footer>
+
+</body>
+</html>
